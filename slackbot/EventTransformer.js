@@ -104,31 +104,31 @@ class EventTransformer {
         playerText = `${boldPlayers.join(', ')} and ${last}`;
       }
 
-      playerText += ' are in the game.'
+      playerText += ' are in the game.';
     }
 
     return [
       {
-        for: event.for.filter((name) => name !== event.player),
-        text: `*${event.player}* joined the game. ` + playerText,
+        for: event.for.filter(name => name !== event.player),
+        text: `*${event.player}* joined the game. ${playerText}`,
       },
       {
         for: [event.player],
-        text: '*You* joined the game. ' + playerText,
-      }
+        text: `*You* joined the game. ${playerText}`,
+      },
     ];
   }
 
   ['gameStart'](event) {
     return [
       {
-        for: event.for.filter((name) => name !== event.starter),
+        for: event.for.filter(name => name !== event.starter),
         text: `*${event.starter}* started the game.`,
       },
       {
         for: [event.starter],
-        text: '*You* started the game.'
-      }
+        text: '*You* started the game.',
+      },
     ];
   }
 
@@ -141,7 +141,7 @@ class EventTransformer {
     }
 
     if (event.cardChoice) {
-      const part = ` and choosing *${event.cardChoice}*`
+      const part = ` and choosing *${event.cardChoice}*`;
       text += part;
     }
 
@@ -173,20 +173,20 @@ class EventTransformer {
       {
         for: event.for,
         text: textParts.join('\n'),
-      }
+      },
     ];
   }
 
   ['gameEnd'](event) {
     return [
       {
-        for: event.for.filter((name) => name !== event.winner),
+        for: event.for.filter(name => name !== event.winner),
         text: `The game ends. *${event.winner}* wins the game.`,
       },
       {
         for: [event.winner],
-        text: 'The game ends. *You* win the game.'
-      }
+        text: 'The game ends. *You* win the game.',
+      },
     ];
   }
 
@@ -195,7 +195,7 @@ class EventTransformer {
       {
         for: event.for,
         text: `Round *${event.round}* starts.`,
-      }
+      },
     ];
   }
 
@@ -205,12 +205,12 @@ class EventTransformer {
         {
           for: event.for,
           text: '*You* are out of the round.',
-        }
+        },
       ];
     }
 
-    let textParts = [
-      '*You* have in your hand:'
+    const textParts = [
+      '*You* have in your hand:',
     ];
 
     event.cardsInHand.forEach((card) => {
@@ -258,7 +258,7 @@ class EventTransformer {
       {
         for: event.for,
         text: textParts.join('\n'),
-      }
+      },
     ];
   }
 
@@ -373,7 +373,7 @@ class EventTransformer {
         for: event.for,
         text: '*Game status*',
         attachments,
-      }
+      },
     ];
   }
 
@@ -382,14 +382,14 @@ class EventTransformer {
       {
         for: event.for,
         text: `*${event.card}* has no effect.`,
-      }
+      },
     ];
   }
 
   ['outOfRound'](event) {
     return [
       {
-        for: event.for.filter((name) => name !== event.player),
+        for: event.for.filter(name => name !== event.player),
         text: [
           `*${event.player}* is out of the round`,
           `revealing *${event.handCard}*.`,
@@ -398,7 +398,7 @@ class EventTransformer {
       {
         for: [event.player],
         text: `*You* are out of the round revealing *${event.handCard}*.`,
-      }
+      },
     ];
   }
 
@@ -406,47 +406,47 @@ class EventTransformer {
     return [
       {
         for: event.for,
-        text: `*${event.player}* shows you *${event.card}*.`
-      }
+        text: `*${event.player}* shows you *${event.card}*.`,
+      },
     ];
   }
 
   ['cardShow'](event) {
     return [
       {
-        for: event.for.filter((name) => name !== event.player),
+        for: event.for.filter(name => name !== event.player),
         text: `*${event.player}* shows a card to *${event.target}*.`,
       },
       {
         for: [event.player],
-        text: `*You* show your card to *${event.target}*.`
-      }
+        text: `*You* show your card to *${event.target}*.`,
+      },
     ];
   }
 
   ['protectionStart'](event) {
     return [
       {
-        for: event.for.filter((name) => name !== event.player),
+        for: event.for.filter(name => name !== event.player),
         text: `*${event.player}* is protected.`,
       },
       {
         for: [event.player],
-        text: '*You* are protected.'
-      }
+        text: '*You* are protected.',
+      },
     ];
   }
 
   ['protectionEnd'](event) {
     return [
       {
-        for: event.for.filter((name) => name !== event.player),
+        for: event.for.filter(name => name !== event.player),
         text: `Protection on *${event.player}* ends.`,
       },
       {
         for: [event.player],
-        text: 'Protection on *you* ends.'
-      }
+        text: 'Protection on *you* ends.',
+      },
     ];
   }
 
@@ -455,7 +455,7 @@ class EventTransformer {
       {
         for: event.for,
         text: `*${event.player1}* and *${event.player2}* trade cards.`,
-      }
+      },
     ];
   }
 
@@ -464,20 +464,20 @@ class EventTransformer {
       {
         for: event.for,
         text: `*${event.player1}* and *${event.player2}* compare cards.`,
-      }
+      },
     ];
   }
 
   ['cardDraw'](event) {
     return [
       {
-        for: event.for.filter((name) => name !== event.player),
+        for: event.for.filter(name => name !== event.player),
         text: `*${event.player}* draws a card.`,
       },
       {
         for: [event.player],
-        text: '*You* draw a card.'
-      }
+        text: '*You* draw a card.',
+      },
     ];
   }
 
@@ -485,21 +485,21 @@ class EventTransformer {
     return [
       {
         for: event.for,
-        text: `*You* receive *${event.card}* from *${event.player}*.`
-      }
+        text: `*You* receive *${event.card}* from *${event.player}*.`,
+      },
     ];
   }
 
   ['cardDiscard'](event) {
     return [
       {
-        for: event.for.filter((name) => name !== event.player),
+        for: event.for.filter(name => name !== event.player),
         text: `*${event.player}* discards *${event.card}*.`,
       },
       {
         for: [event.player],
         text: `*You* discard *${event.card}*.`,
-      }
+      },
     ];
   }
 }
