@@ -25,10 +25,10 @@ class DumbBot {
   generateNewName() {
     this._id = '';
 
-    const possibleC = 'bcdfghjklmnpqrstvwxz'
+    const possibleC = 'bcdfghjklmnpqrstvwxz';
     const possibleV = 'aeiouy';
 
-    for(let i = 1; i <= 4; i++) {
+    for (let i = 1; i <= 4; i += 1) {
       let possible = possibleC;
       if (i === 2 || i === 4) {
         possible = possibleV;

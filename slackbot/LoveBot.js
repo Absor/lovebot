@@ -36,28 +36,28 @@ class LoveBot {
   }
 
   async start() {
-      const response = await fetch(
-        `https://slack.com/api/rtm.start?token=${this._token}`
-      );
+    const response = await fetch(
+      `https://slack.com/api/rtm.start?token=${this._token}`
+    );
 
-      const slackData = await response.json();
-      this._ims = slackData.ims;
-      this._users = slackData.users;
-      this._self = slackData.self;
-      const url = slackData.url;
+    const slackData = await response.json();
+    this._ims = slackData.ims;
+    this._users = slackData.users;
+    this._self = slackData.self;
 
-      this._ws = new WebSocket(slackData.url);
+    const url = slackData.url;
+    this._ws = new WebSocket(url);
 
-      this._sender = new ThrottleSender(this.logger, this._ws, this._token);
+    this._sender = new ThrottleSender(this.logger, this._ws, this._token);
 
-      this._ws.on('open', () => {
-        this.logger.info('LoveBot started');
-      });
+    this._ws.on('open', () => {
+      this.logger.info('LoveBot started');
+    });
 
-      this._ws.on('message', (data) => {
-        const message = JSON.parse(data);
-        this._onBotMessage(message);
-      });
+    this._ws.on('message', (data) => {
+      const message = JSON.parse(data);
+      this._onBotMessage(message);
+    });
   }
 
   _resetGame() {
@@ -77,12 +77,12 @@ class LoveBot {
     this.logger.info('Game event', event);
 
     if (event.type === 'gameStatus') {
-      this._bots.forEach((bot) => bot.updateGameStatus(event));
+      this._bots.forEach(bot => bot.updateGameStatus(event));
     }
 
     if (event.type === 'privateStatus') {
       const recipient = event.for[0];
-      const botUser = this._bots.find((bot) => bot.getName() === recipient);
+      const botUser = this._bots.find(bot => bot.getName() === recipient);
 
       if (botUser && event.isCurrentPlayer) {
         this.logger.info(`Game event given to bot ${botUser.getName()}.`);
@@ -110,17 +110,12 @@ class LoveBot {
 
     newEvents.forEach((newEvent) => {
       newEvent.for.forEach((recipient) => {
-        const botUser = this._bots.find((bot) => bot.getName() === recipient);
+        const botUser = this._bots.find(bot => bot.getName() === recipient);
 
         if (botUser) return;
 
-        const targetUser = this._users.find(
-          (user) => user.name === recipient
-        );
-
-        const targetIm = this._ims.find(
-          (im) => im.user === targetUser.id
-        );
+        const targetUser = this._users.find(user => user.name === recipient);
+        const targetIm = this._ims.find(im => im.user === targetUser.id);
 
         this.logger.info(`Game event send to ${recipient} started`, newEvent);
         this._sendMessageToImChannel(
@@ -158,14 +153,14 @@ class LoveBot {
     if (message.hidden) return;
     if (message.user === this._self.id) return;
 
-    const imChannel = this._ims.find((im) => im.id === message.channel);
+    const imChannel = this._ims.find(im => im.id === message.channel);
     if (!imChannel) return;
 
-    const user = this._users.find((user) => user.id === message.user);
+    const user = this._users.find(u => u.id === message.user);
     const username = user.name;
     const command = message.text.trim().toLowerCase().split(' ');
 
-    switch(command[0]) {
+    switch (command[0]) {
       case 'help':
         this._onHelp(imChannel);
         break;
@@ -184,6 +179,8 @@ class LoveBot {
       case 'addbot':
         this._onAddBot(imChannel, username);
         break;
+      default:
+        // TODO: error message
     }
   }
 
@@ -206,7 +203,7 @@ class LoveBot {
       {
         title: '8 - Princess (1)',
         text: 'If you discard this card, you are out of the round.',
-        color: '#0033FF'
+        color: '#0033FF',
       },
       {
         title: '7 - Countess (1)',
@@ -214,12 +211,12 @@ class LoveBot {
           'If you have this card and the King or Prince in your hand,',
           'you must discard this card.',
         ].join(' '),
-        color: '#0066FF'
+        color: '#0066FF',
       },
       {
         title: '6 - King (1)',
         text: 'Trade hands with another player of your choice.',
-        color: '#0099FF'
+        color: '#0099FF',
       },
       {
         title: '5 - Prince (2)',
@@ -227,7 +224,7 @@ class LoveBot {
           'Choose any player including yourself to',
           'discard his or her hand and draw a new card.',
         ].join(' '),
-        color: '#00CCFF'
+        color: '#00CCFF',
       },
       {
         title: '4 - Handmaid (2)',
@@ -235,7 +232,7 @@ class LoveBot {
           'Until your next turn,',
           'ignore all effects from other player\'s cards.',
         ].join(' '),
-        color: '#00FFCC'
+        color: '#00FFCC',
       },
       {
         title: '3 - Baron (2)',
@@ -243,12 +240,12 @@ class LoveBot {
           'You and another player secretly compare hands.',
           'The player with the lower value is out of the round.',
         ].join(' '),
-        color: '#00FF99'
+        color: '#00FF99',
       },
       {
         title: '2 - Priest (2)',
         text: 'Look at a another player\'s hand.',
-        color: '#00FF66'
+        color: '#00FF66',
       },
       {
         title: '1 - Guard (5)',
@@ -256,7 +253,7 @@ class LoveBot {
           'Name a non-Guard card and choose another player.',
           'If that player has that card, he or she is out of the round.',
         ].join(' '),
-        color: '#00FF33'
+        color: '#00FF33',
       },
     ];
 

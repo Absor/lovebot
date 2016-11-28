@@ -74,7 +74,7 @@ class ThrottleSender {
 
       this.logger.info('Sending message using HTTPS API', {
         channel: channelId,
-        attachments: item.attachments
+        attachments: item.attachments,
       });
 
       const response = await fetch(
