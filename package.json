@@ -1,0 +1,29 @@
+{
+  "name": "loveletter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "eslint lib test slackbot && mocha",
+    "start": "babel-node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-preset-es2017": "^6.16.0",
+    "chai": "^3.5.0",
+    "eslint": "^3.10.2",
+    "eslint-config-airbnb": "^13.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^6.7.1",
+    "mocha": "^3.1.2"
+  },
+  "dependencies": {
+    "form-data": "^2.1.2",
+    "node-fetch": "^1.6.3",
+    "winston": "^2.3.0",
+    "ws": "^1.1.1"
+  }
+}
