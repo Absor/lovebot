@@ -1,0 +1,8 @@
+app:
+  build: .
+  restart: always
+  container_name: lovebot
+  environment:
+    - SLACK_TOKEN=insert-token-here
+  volumes:
+    - /app/node_modules
