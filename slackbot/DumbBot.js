@@ -78,7 +78,7 @@ class DumbBot {
 
     let cardChoice = null;
 
-    if (cardName === 'Guard') {
+    if (cardTarget && cardName === 'Guard') {
       cardChoice = GUARD_CHOICES[
         Math.floor(Math.random() * GUARD_CHOICES.length)
       ];
