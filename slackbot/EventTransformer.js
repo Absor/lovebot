@@ -10,82 +10,106 @@ class EventTransformer {
 
   // ERRORS
 
-  createGameAlreadyStartedError(playerName) {
-    this._createError({
-      for: [playerName],
-      type: 'alreadyStarted',
-    });
+  ['alreadyStarted'](event) {
+    return [
+      {
+        for: event.for,
+        text: 'The game has already started.',
+      },
+    ];
   }
 
-  createNotEnoughPlayersError(playerName) {
-    this._createError({
-      for: [playerName],
-      type: 'notEnoughPlayers',
-    });
+  ['notEnoughPlayers'](event) {
+    return [
+      {
+        for: event.for,
+        text: 'There are not enough players.',
+      },
+    ];
   }
 
-  createGameNotStartedError(playerName) {
-    this._createError({
-      for: [playerName],
-      type: 'gameNotStarted',
-    });
+  ['gameNotStarted'](event) {
+    return [
+      {
+        for: event.for,
+        text: 'The game has not started yet.',
+      },
+    ];
   }
 
-  createNotPlayerTurnError(playerName) {
-    this._createError({
-      for: [playerName],
-      type: 'notPlayerTurn',
-    });
+  ['notPlayerTurn'](event) {
+    return [
+      {
+        for: event.for,
+        text: 'It is not *your* turn.',
+      },
+    ];
   }
 
-  createNoTargetPlayerError(playerName, targetPlayerName) {
-    this._createError({
-      for: [playerName],
-      type: 'noTargetPlayer',
-      target: targetPlayerName,
-    });
+  ['noTargetPlayer'](event) {
+    return [
+      {
+        for: event.for,
+        text: `*${event.namedTarget}* is not in the game.`,
+      },
+    ];
   }
 
-  createPlayerHasNoCardError(playerName, cardName) {
-    this._createError({
-      for: [playerName],
-      type: 'noCardInHand',
-      card: cardName,
-    });
+  ['noCardInHand'](event) {
+    return [
+      {
+        for: event.for,
+        text: `*You* don't have card *${event.namedCard}*.`,
+      },
+    ];
   }
 
-  createCardPlayNotAllowedError(playerName, cardName) {
-    this._createError({
-      for: [playerName],
-      type: 'cardPlayNotAllowed',
-      card: cardName,
-    });
+  ['cardPlayNotAllowed'](event) {
+    return [
+      {
+        for: event.for,
+        text: `*You* can't play *${event.cardName}* now.`,
+      },
+    ];
   }
 
-  createTargetNeededError(playerName, cardName) {
-    this._createError({
-      for: [playerName],
-      type: 'needTarget',
-      card: cardName,
-    });
+  ['invalidCardTarget'](event) {
+    let text = null;
+
+    if (event.target) {
+      text = [
+        `*You* chose an invalid target *${event.target}*`,
+        `for *${event.card}*.`,
+      ].join(' ');
+    } else {
+      text = `*You* need to choose a target for *${event.card}*.`;
+    }
+
+    return [
+      {
+        for: event.for,
+        text,
+      },
+    ];
   }
 
-  createInvalidCardTargetError(playerName, cardName, targetPlayerName) {
-    this._createError({
-      for: [playerName],
-      type: 'invalidCardTarget',
-      card: cardName,
-      target: targetPlayerName,
-    });
-  }
+  ['invalidCardChoice'](event) {
+    let text = null;
+    if (event.cardChoice) {
+      text = [
+        `*You* named an invalid card *${event.cardChoice}*`,
+        `for *${event.card}*.`,
+      ].join(' ');
+    } else {
+      text = `*You* need to name a card for *${event.card}*.`;
+    }
 
-  createInvalidCardChoiceError(playerName, cardName, cardChoice) {
-    this._createError({
-      for: [playerName],
-      type: 'invalidCardChoice',
-      card: cardName,
-      cardChoice,
-    });
+    return [
+      {
+        for: event.for,
+        text,
+      },
+    ];
   }
 
   // OUTPUT EVENTS
@@ -269,10 +293,7 @@ class EventTransformer {
     const noun = event.deckCardCount === 1 ? 'card' : 'cards';
 
     attachments.push({
-      text: [
-        `It is round *${event.round}.*`,
-        `There ${verb} *${event.deckCardCount}* ${noun} in the deck.`,
-      ].join(' '),
+      text: `It is round *${event.round}.*`,
       mrkdwn_in: ['text'],
       color: '#000000', // black
     });
@@ -345,6 +366,12 @@ class EventTransformer {
     }
 
     attachments.push(cardsOnTheTable);
+
+    attachments.push({
+      text: `There ${verb} *${event.deckCardCount}* ${noun} in the deck.`,
+      mrkdwn_in: ['text'],
+      color: '#000000', // black
+    });
 
     event.players.forEach((player) => {
       if (player.isProtected) {
