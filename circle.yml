@@ -1,0 +1,9 @@
+machine:
+  node:
+    version: 6.1.0
+  services:
+    - docker
+
+test:
+  post:
+    - docker build .
