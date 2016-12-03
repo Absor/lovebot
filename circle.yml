@@ -4,6 +4,11 @@ machine:
   services:
     - docker
 
-test:
-  post:
-    - docker build .
+deployment:
+  pre:
+    - docker build --rm=false -t absor/lovebot .
+  hub:
+    branch: master
+    commands:
+      - docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - docker push absor/lovebot
