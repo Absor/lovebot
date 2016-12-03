@@ -5,9 +5,7 @@ const Game = require('../lib/Game');
 const expect = chai.expect;
 
 
-describe('Playing game', function testContext() {
-  this.timeout(2000);
-
+describe('Playing game', () => {
   let game = null;
 
   beforeEach(() => {
@@ -84,6 +82,7 @@ describe('Playing game', function testContext() {
         players: [
           {
             handCardCount: 2,
+            isOutOfRound: false,
             name: currentPlayer,
             tableCards: [],
             tokenOfAffectionCount: 0,
@@ -91,6 +90,7 @@ describe('Playing game', function testContext() {
           },
           {
             handCardCount: 1,
+            isOutOfRound: false,
             name: otherPlayer,
             tableCards: [],
             tokenOfAffectionCount: 0,

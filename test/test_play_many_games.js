@@ -11,7 +11,7 @@ describe('Playing many games', function testContext() {
   it('is possible', (done) => {
     const promises = [];
 
-    for (let i = 0; i < 10000; i += 1) {
+    for (let i = 0; i < 1000; i += 1) {
       promises.push(new Promise((resolve) => {
         const game = new Game();
         game.joinGameAsPlayer('tester1');
