@@ -31,6 +31,8 @@ describe('Starting game', () => {
     game.joinGameAsPlayer('tester2');
 
     game.on('event', (event) => {
+      if (event.type !== 'gameStart') return;
+
       expect(event).to.deep.equal({
         for: event.for,
         type: 'gameStart',
