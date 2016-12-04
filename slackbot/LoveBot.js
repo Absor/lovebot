@@ -1,19 +1,15 @@
 const winston = require('winston');
-const fetch = require('node-fetch');
-const WebSocket = require('ws');
 
 const Game = require('../lib/Game');
-const ThrottleSender = require('./ThrottleSender');
 const EventTransformer = require('./EventTransformer');
 const DumbBot = require('./DumbBot');
 const responses = require('./responses');
+const SlackBot = require('./SlackBot');
 
 
 class LoveBot {
 
   constructor(token) {
-    this._token = token;
-
     this.logger = new winston.Logger({
       transports: [
         new (winston.transports.Console)(),
@@ -26,44 +22,14 @@ class LoveBot {
     this._bots = [];
     this._resetGame();
 
-    this._ws = null;
-    this._sender = null;
-
-    this._ims = null;
-    this._users = null;
-    this._self = null;
+    this._slackBot = new SlackBot(this.logger, token);
+    this._slackBot.on('message', this._onBotMessage.bind(this));
 
     this._eventTransformer = new EventTransformer();
   }
 
   async start() {
-    const response = await fetch(
-      `https://slack.com/api/rtm.start?token=${this._token}`
-    );
-
-    const slackData = await response.json();
-    this._ims = slackData.ims;
-    this._users = slackData.users;
-    this._self = slackData.self;
-
-    const url = slackData.url;
-    this._ws = new WebSocket(url);
-
-    this._sender = new ThrottleSender(this.logger, this._ws, this._token);
-
-    this._ws.on('open', () => {
-      this.logger.info('LoveBot started');
-    });
-
-    this._ws.on('message', (data) => {
-      const message = JSON.parse(data);
-      this._onBotMessage(message);
-    });
-
-    this._ws.on('close', () => {
-      this.logger.error('WebSocket connection closed, exiting.');
-      process.exit(1);
-    });
+    await this._slackBot.connect();
   }
 
   _resetGame() {
@@ -116,7 +82,7 @@ class LoveBot {
   }
 
   _sendMessageToImChannel(imChannel, text, attachments) {
-    this._sender.sendMessage(imChannel, text, attachments);
+    this._slackBot.sendMessage(imChannel, text, attachments);
   }
 
   _onBotMessage(message) {
