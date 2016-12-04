@@ -224,23 +224,6 @@ class LoveBot {
     this._game.joinGameAsPlayer(bot.getName());
   }
 
-  _generateBotName() {
-    let name = '';
-
-    const possibleC = 'bcdfghjklmnpqrstvwxz';
-    const possibleV = 'aeiouy';
-
-    for (let i = 1; i <= 4; i += 1) {
-      let possible = possibleC;
-      if (i === 2 || i === 4) {
-        possible = possibleV;
-      }
-      name += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-
-    return `bot_${name}`;
-  }
-
   _onStart(imChannel, username) {
     this.logger.info(`Game start command attempt by ${username}`);
     if (!this._game.hasPlayerWithName(username)) {
@@ -271,6 +254,23 @@ class LoveBot {
 
     this.logger.info(`Game play command by ${username}`);
     this._game.playCardAsPlayer(username, c1, c2, c3);
+  }
+
+  _generateBotName() {
+    let name = '';
+
+    const possibleC = 'bcdfghjklmnpqrstvwxz';
+    const possibleV = 'aeiouy';
+
+    for (let i = 1; i <= 4; i += 1) {
+      let possible = possibleC;
+      if (i === 2 || i === 4) {
+        possible = possibleV;
+      }
+      name += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+
+    return `bot_${name}`;
   }
 
 }
