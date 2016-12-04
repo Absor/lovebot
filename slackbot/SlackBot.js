@@ -6,6 +6,7 @@ const ThrottleSender = require('./ThrottleSender');
 
 
 class SlackBot extends EventEmitter {
+
   constructor(logger, token) {
     super();
 
@@ -41,7 +42,7 @@ class SlackBot extends EventEmitter {
 
     this._ws.on('message', (data) => {
       const message = JSON.parse(data);
-      this.emit('message', message);
+      this._onMessage(message);
     });
 
     this._ws.on('close', () => {
@@ -50,9 +51,52 @@ class SlackBot extends EventEmitter {
     });
   }
 
-  sendMessage(imChannel, text, attachments) {
+  sendMessage(username, text, attachments) {
+    const user = this._users.find(u => u.name === username);
+    if (!user) {
+      this.logger.error(
+        `Tried to send a message to non-existing user ${username}.`
+      );
+      return;
+    }
+
+    const imChannel = this._ims.find(im => im.user === user.id);
+
+    if (!imChannel) {
+      this.logger.error(
+        'Tried to send a message to an unknown IM channel.', { username }
+      );
+      return;
+    }
+
     this._sender.sendMessage(imChannel, text, attachments);
   }
+
+  _onMessage(message) {
+    if (message.type === 'team_join') {
+      this._users.push(message.user);
+      this.logger.info('New team member joined');
+    }
+
+    if (message.type === 'im_created') {
+      this._ims.push(message.channel);
+      this.logger.info('New direct message channel created');
+    }
+
+    if (message.type !== 'message') return;
+    if (!message.user) return;
+    if (message.hidden) return;
+    if (message.user === this._self.id) return;
+
+    const imChannel = this._ims.find(im => im.id === message.channel);
+    if (!imChannel) return;
+
+    const user = this._users.find(u => u.id === message.user);
+    const username = user.name;
+
+    this.emit('private', { username, text: message.text });
+  }
+
 }
 
 

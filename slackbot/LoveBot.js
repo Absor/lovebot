@@ -68,7 +68,7 @@ class LoveBot {
         const targetIm = this._ims.find(im => im.user === targetUser.id);
 
         this.logger.info(`Game event send to ${recipient} started`, newEvent);
-        this._sendMessageToImChannel(
+        this._sendMessageToUsername(
           targetIm,
           newEvent.text,
           newEvent.attachments
@@ -81,78 +81,59 @@ class LoveBot {
     }
   }
 
-  _sendMessageToImChannel(imChannel, text, attachments) {
-    this._slackBot.sendMessage(imChannel, text, attachments);
+  _sendMessageToUsername(username, text, attachments) {
+    this._slackBot.sendMessage(username, text, attachments);
   }
 
-  _onBotMessage(message) {
+  _onPrivateMessage(message) {
     this.logger.info('Received message', message);
 
-    if (message.type === 'team_join') {
-      this._users.push(message.user);
-      this.logger.info('New team member joined');
-    }
-
-    if (message.type === 'im_created') {
-      this._ims.push(message.channel);
-      this.logger.info('New direct message channel created');
-    }
-
-    if (message.type !== 'message') return;
-    if (!message.user) return;
-    if (message.hidden) return;
-    if (message.user === this._self.id) return;
-
-    const imChannel = this._ims.find(im => im.id === message.channel);
-    if (!imChannel) return;
-
-    const user = this._users.find(u => u.id === message.user);
-    const username = user.name;
+    const username = message.username;
     const command = message.text.trim().toLowerCase().split(' ');
 
     switch (command[0]) {
       case 'help':
-        this._onHelp(imChannel);
+        this._onHelp(username);
         break;
       case 'cards':
-        this._onCards(imChannel);
+        this._onCards(username);
         break;
       case 'join':
-        this._onJoin(imChannel, username);
+        this._onJoin(username);
         break;
       case 'start':
-        this._onStart(imChannel, username);
+        this._onStart(username);
         break;
       case 'play':
-        this._onPlay(imChannel, username, command[1], command[2], command[3]);
+        this._onPlay(username, command[1], command[2], command[3]);
         break;
       case 'addbot':
-        this._onAddBot(imChannel, username);
+        this._onAddBot(username);
         break;
       default:
         break;
     }
   }
 
-  _onHelp(imChannel) {
-    this._sendMessageToImChannel(imChannel, responses.static.commands.text);
+  _onHelp(username) {
+    this._sendMessageToUsername(username, responses.static.commands.text);
   }
 
-  _onCards(imChannel) {
+  _onCards(username) {
     const listOfCards = responses.static.listOfCards;
-    this._sendMessageToImChannel(
-      imChannel, listOfCards.text, listOfCards.attachments
+    this._sendMessageToUsername(
+      username, listOfCards.text, listOfCards.attachments
     );
   }
 
-  _onJoin(imChannel, username) {
+  _onJoin(username) {
     this.logger.info(`Game join command attempt by ${username}`);
 
     if (this._game.hasPlayerWithName(username)) {
       const message = responses.dynamic.alreadyInGameJoin(
         this._game.hasStarted()
       );
-      this._sendMessageToImChannel(imChannel, message.text);
+      this._sendMessageToUsername(username, message.text);
       this.logger.error(
         `Game join command failed because ${username} is already in the game`
       );
@@ -160,8 +141,8 @@ class LoveBot {
     }
 
     if (this._game.hasStarted()) {
-      this._sendMessageToImChannel(
-        imChannel, responses.static.alreadyStartedJoin.text
+      this._sendMessageToUsername(
+        username, responses.static.alreadyStartedJoin.text
       );
       this.logger.error(
         `Game join command by ${username} failed because the game has started.`
@@ -170,7 +151,7 @@ class LoveBot {
     }
 
     if (this._game.isFull()) {
-      this._sendMessageToImChannel(imChannel, responses.static.gameFullJoin);
+      this._sendMessageToUsername(username, responses.static.gameFullJoin);
       this.logger.error(
         `Game join command by ${username} failed because the game is full.`
       );
@@ -181,10 +162,10 @@ class LoveBot {
     this._game.joinGameAsPlayer(username);
   }
 
-  _onAddBot(imChannel, username) {
+  _onAddBot(username) {
     if (!this._game.hasPlayerWithName(username)) {
-      this._sendMessageToImChannel(
-        imChannel, responses.static.notInGameAddBot
+      this._sendMessageToUsername(
+        username, responses.static.notInGameAddBot
       );
       this.logger.error(
         `Add bot command by ${username} failed ` +
@@ -194,8 +175,8 @@ class LoveBot {
     }
 
     if (this._game.hasStarted()) {
-      this._sendMessageToImChannel(
-        imChannel, responses.static.alreadyStartedAddBot
+      this._sendMessageToUsername(
+        username, responses.static.alreadyStartedAddBot
       );
       this.logger.error(
         `Bot add command by ${username} failed because the game has started.`
@@ -204,8 +185,8 @@ class LoveBot {
     }
 
     if (this._game.isFull()) {
-      this._sendMessageToImChannel(
-        imChannel, responses.static.gameFullAddBot
+      this._sendMessageToUsername(
+        username, responses.static.gameFullAddBot
       );
       this.logger.error(
         `Bot add command by ${username} failed because the game is full.`
@@ -224,11 +205,11 @@ class LoveBot {
     this._game.joinGameAsPlayer(bot.getName());
   }
 
-  _onStart(imChannel, username) {
+  _onStart(username) {
     this.logger.info(`Game start command attempt by ${username}`);
     if (!this._game.hasPlayerWithName(username)) {
-      this._sendMessageToImChannel(
-        imChannel, responses.static.notInGameStart
+      this._sendMessageToUsername(
+        username, responses.static.notInGameStart
       );
       this.logger.error(
         `Game start command failed because ${username} is not in the game`
@@ -240,11 +221,11 @@ class LoveBot {
     this._game.startGameAsPlayer(username);
   }
 
-  _onPlay(imChannel, username, c1, c2, c3) {
+  _onPlay(username, c1, c2, c3) {
     this.logger.info(`Game play command attempt by ${username}`);
     if (!this._game.hasPlayerWithName(username)) {
-      this._sendMessageToImChannel(
-        imChannel, responses.static.notInGamePlay
+      this._sendMessageToUsername(
+        username, responses.static.notInGamePlay
       );
       this.logger.error(
         `Game play command failed because ${username} is not in the game`
