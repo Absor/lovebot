@@ -58,6 +58,11 @@ class LoveBot {
       const message = JSON.parse(data);
       this._onBotMessage(message);
     });
+
+    this._ws.on('close', () => {
+      this.logger.error('WebSocket connection closed, exiting.');
+      process.exit(1);
+    });
   }
 
   _resetGame() {
