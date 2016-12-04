@@ -164,7 +164,7 @@ class LoveBot {
         this._onAddBot(imChannel, username);
         break;
       default:
-        // TODO: error message
+        break;
     }
   }
 
