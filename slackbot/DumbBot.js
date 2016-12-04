@@ -15,34 +15,27 @@ const GUARD_CHOICES = [
 
 class DumbBot {
 
-  constructor() {
+  constructor(name, game) {
+    this._name = name;
+    this._game = game;
     this._id = null;
     this._status = null;
-
-    this.generateNewName();
+    this._game.on('event', this._processEvent.bind(this));
   }
 
-  generateNewName() {
-    this._id = '';
+  _processEvent(event) {
+    const handler = this[event.type];
 
-    const possibleC = 'bcdfghjklmnpqrstvwxz';
-    const possibleV = 'aeiouy';
-
-    for (let i = 1; i <= 4; i += 1) {
-      let possible = possibleC;
-      if (i === 2 || i === 4) {
-        possible = possibleV;
-      }
-      this._id += possible.charAt(Math.floor(Math.random() * possible.length));
+    if (handler) {
+      handler(event);
     }
   }
 
-  updateGameStatus(status) {
-    this._status = status;
-  }
+  ['privateStatus'](event) {
+    const recipient = event.for[0];
+    if (recipient !== this._name) return;
 
-  getCardPlay(privateStatus) {
-    const canPlayCards = privateStatus.cardsInHand.filter(c => c.canPlay);
+    const canPlayCards = event.cardsInHand.filter(c => c.canPlay);
 
     // Prioritize non Princess cards
     let cardsToPlay = canPlayCards.filter(card => card.name !== 'Princess');
@@ -84,17 +77,13 @@ class DumbBot {
       ];
     }
 
-    return {
+    this._game.playCardAsPlayer(
+      this._name,
       cardName,
       cardTarget,
-      cardChoice,
-    };
+      cardChoice
+    );
   }
-
-  getName() {
-    return `bot_${this._id}`;
-  }
-
 }
 
 

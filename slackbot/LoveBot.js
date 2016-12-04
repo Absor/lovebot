@@ -81,28 +81,6 @@ class LoveBot {
   _onGameEvent(event) {
     this.logger.info('Game event', event);
 
-    if (event.type === 'gameStatus') {
-      this._bots.forEach(bot => bot.updateGameStatus(event));
-    }
-
-    if (event.type === 'privateStatus') {
-      const recipient = event.for[0];
-      const botUser = this._bots.find(bot => bot.getName() === recipient);
-
-      if (botUser && event.isCurrentPlayer) {
-        this.logger.info(`Game event given to bot ${botUser.getName()}.`);
-        const cardPlay = botUser.getCardPlay(event);
-
-        this._game.playCardAsPlayer(
-          botUser.getName(),
-          cardPlay.cardName,
-          cardPlay.cardTarget,
-          cardPlay.cardChoice
-        );
-        return;
-      }
-    }
-
     let newEvents = null;
     try {
       newEvents = this._eventTransformer.transform(event);
@@ -346,12 +324,32 @@ class LoveBot {
       return;
     }
 
-    const bot = new DumbBot();
-    while (this._game.hasPlayerWithName(bot.getName())) {
-      bot.generateNewName();
+    let name = this._generateBotName();
+    while (this._game.hasPlayerWithName(name)) {
+      name = this._generateBotName();
     }
+
+    const bot = new DumbBot(name, this._game);
+
     this._bots.push(bot);
     this._game.joinGameAsPlayer(bot.getName());
+  }
+
+  _generateBotName() {
+    let name = '';
+
+    const possibleC = 'bcdfghjklmnpqrstvwxz';
+    const possibleV = 'aeiouy';
+
+    for (let i = 1; i <= 4; i += 1) {
+      let possible = possibleC;
+      if (i === 2 || i === 4) {
+        possible = possibleV;
+      }
+      name += possible.charAt(Math.floor(Math.random() * possible.length));
+    }
+
+    return `bot_${name}`;
   }
 
   _onStart(imChannel, username) {
