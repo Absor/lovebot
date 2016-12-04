@@ -6,6 +6,7 @@ const Game = require('../lib/Game');
 const ThrottleSender = require('./ThrottleSender');
 const EventTransformer = require('./EventTransformer');
 const DumbBot = require('./DumbBot');
+const responses = require('./responses');
 
 
 class LoveBot {
@@ -168,94 +169,24 @@ class LoveBot {
   }
 
   _onHelp(imChannel) {
-    const messageParts = [
-      '*Commands*',
-      '*cards* to show a summary of cards.',
-      '*join* to join a game.',
-      '*start* to start a game you have joined.',
-      '*play <cardname> <target player name> <card choice>* ' +
-        'to play a card when it is your turn.',
-      '*addbot* to add a bot player to a game you have joined.',
-    ];
-
-    this._sendMessageToImChannel(imChannel, messageParts.join('\n'));
+    this._sendMessageToImChannel(imChannel, responses.static.commands.text);
   }
 
   _onCards(imChannel) {
-    const attachments = [
-      {
-        title: '8 - Princess (1)',
-        text: 'If you discard this card, you are out of the round.',
-        color: '#0033FF',
-      },
-      {
-        title: '7 - Countess (1)',
-        text: [
-          'If you have this card and the King or Prince in your hand,',
-          'you must discard this card.',
-        ].join(' '),
-        color: '#0066FF',
-      },
-      {
-        title: '6 - King (1)',
-        text: 'Trade hands with another player of your choice.',
-        color: '#0099FF',
-      },
-      {
-        title: '5 - Prince (2)',
-        text: [
-          'Choose any player including yourself to',
-          'discard his or her hand and draw a new card.',
-        ].join(' '),
-        color: '#00CCFF',
-      },
-      {
-        title: '4 - Handmaid (2)',
-        text: [
-          'Until your next turn,',
-          'ignore all effects from other player\'s cards.',
-        ].join(' '),
-        color: '#00FFCC',
-      },
-      {
-        title: '3 - Baron (2)',
-        text: [
-          'You and another player secretly compare hands.',
-          'The player with the lower value is out of the round.',
-        ].join(' '),
-        color: '#00FF99',
-      },
-      {
-        title: '2 - Priest (2)',
-        text: 'Look at a another player\'s hand.',
-        color: '#00FF66',
-      },
-      {
-        title: '1 - Guard (5)',
-        text: [
-          'Name a non-Guard card and choose another player.',
-          'If that player has that card, he or she is out of the round.',
-        ].join(' '),
-        color: '#00FF33',
-      },
-    ];
-
-    this._sendMessageToImChannel(imChannel, '*List of cards*', attachments);
+    const listOfCards = responses.static.listOfCards;
+    this._sendMessageToImChannel(
+      imChannel, listOfCards.text, listOfCards.attachments
+    );
   }
 
   _onJoin(imChannel, username) {
     this.logger.info(`Game join command attempt by ${username}`);
 
     if (this._game.hasPlayerWithName(username)) {
-      let message = 'You are already in the game';
-      if (!this._game.hasStarted()) {
-        message += '. Write *start* to start the game.';
-      } else {
-        message += ' and the game has started. Write *play <cardname> ' +
-                   '<target player name> <card choice>* ' +
-                   'to play a card when it is your turn.';
-      }
-      this._sendMessageToImChannel(imChannel, message);
+      const message = responses.dynamic.alreadyInGameJoin(
+        this._game.hasStarted()
+      );
+      this._sendMessageToImChannel(imChannel, message.text);
       this.logger.error(
         `Game join command failed because ${username} is already in the game`
       );
@@ -264,8 +195,7 @@ class LoveBot {
 
     if (this._game.hasStarted()) {
       this._sendMessageToImChannel(
-        imChannel,
-        'The current game has already started. Wait until a new game begins.'
+        imChannel, responses.static.alreadyStartedJoin.text
       );
       this.logger.error(
         `Game join command by ${username} failed because the game has started.`
@@ -274,10 +204,7 @@ class LoveBot {
     }
 
     if (this._game.isFull()) {
-      this._sendMessageToImChannel(
-        imChannel,
-        'The current game is full. Wait until a new game begins.'
-      );
+      this._sendMessageToImChannel(imChannel, response.static.gameFullJoin);
       this.logger.error(
         `Game join command by ${username} failed because the game is full.`
       );
@@ -291,9 +218,7 @@ class LoveBot {
   _onAddBot(imChannel, username) {
     if (!this._game.hasPlayerWithName(username)) {
       this._sendMessageToImChannel(
-        imChannel,
-        'You have to be in the game to add a bot. ' +
-        'Write *join* to join the game.'
+        imChannel, responses.static.notInGameAddBot
       );
       this.logger.error(
         `Add bot command by ${username} failed ` +
@@ -304,8 +229,7 @@ class LoveBot {
 
     if (this._game.hasStarted()) {
       this._sendMessageToImChannel(
-        imChannel,
-        'The current game has already started. Wait until a new game begins.'
+        imChannel, responses.static.alreadyStartedAddBot
       );
       this.logger.error(
         `Bot add command by ${username} failed because the game has started.`
@@ -315,8 +239,7 @@ class LoveBot {
 
     if (this._game.isFull()) {
       this._sendMessageToImChannel(
-        imChannel,
-        'The current game is full. Wait until a new game begins.'
+        imChannel, response.static.gameFullAddBot
       );
       this.logger.error(
         `Bot add command by ${username} failed because the game is full.`
@@ -356,8 +279,7 @@ class LoveBot {
     this.logger.info(`Game start command attempt by ${username}`);
     if (!this._game.hasPlayerWithName(username)) {
       this._sendMessageToImChannel(
-        imChannel,
-        'You are not in the game. Write *join* to join the game.'
+        imChannel, responses.static.notInGameStart
       );
       this.logger.error(
         `Game start command failed because ${username} is not in the game`
@@ -373,8 +295,7 @@ class LoveBot {
     this.logger.info(`Game play command attempt by ${username}`);
     if (!this._game.hasPlayerWithName(username)) {
       this._sendMessageToImChannel(
-        imChannel,
-        'You are not in the game. Write *join* to join the game.'
+        imChannel, responses.static.notInGamePlay
       );
       this.logger.error(
         `Game play command failed because ${username} is not in the game`
