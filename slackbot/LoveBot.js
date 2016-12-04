@@ -204,7 +204,7 @@ class LoveBot {
     }
 
     if (this._game.isFull()) {
-      this._sendMessageToImChannel(imChannel, response.static.gameFullJoin);
+      this._sendMessageToImChannel(imChannel, responses.static.gameFullJoin);
       this.logger.error(
         `Game join command by ${username} failed because the game is full.`
       );
@@ -239,7 +239,7 @@ class LoveBot {
 
     if (this._game.isFull()) {
       this._sendMessageToImChannel(
-        imChannel, response.static.gameFullAddBot
+        imChannel, responses.static.gameFullAddBot
       );
       this.logger.error(
         `Bot add command by ${username} failed because the game is full.`

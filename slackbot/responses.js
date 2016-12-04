@@ -14,7 +14,7 @@ module.exports = {
         ]);
       }
       return {
-        text: messageParts.join('')
+        text: messageParts.join(''),
       };
     },
   },
@@ -43,7 +43,7 @@ module.exports = {
       text: [
         'You have to be in the game to add a bot.',
         'Write *join* to join the game.',
-      ].join(' ')
+      ].join(' '),
     },
 
     gameFullJoin: {
@@ -130,4 +130,4 @@ module.exports = {
       ],
     },
   },
-}
+};
