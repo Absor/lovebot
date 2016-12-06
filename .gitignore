@@ -1,2 +1,5 @@
 node_modules
 *.log
+.ash_history
+.v8*
+.babel.json

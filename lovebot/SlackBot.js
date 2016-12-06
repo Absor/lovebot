@@ -27,6 +27,12 @@ class SlackBot extends EventEmitter {
     );
 
     const slackData = await response.json();
+
+    if (!slackData.ok) {
+      this.logger.info('Failed Slack connection initilization.', slackData);
+      process.exit(1);
+    }
+
     this._ims = slackData.ims;
     this._users = slackData.users;
     this._self = slackData.self;

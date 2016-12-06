@@ -17,6 +17,36 @@ module.exports = {
         text: messageParts.join(''),
       };
     },
+
+    stats(winners) {
+      const winCount = winners.reduce((result, winner) => {
+        let key = winner;
+
+        if (winner.startsWith('bot_')) {
+          key = 'Bots';
+        }
+
+        if (result[key] === undefined) {
+          result[key] = 0;
+        }
+        result[key] += 1;
+        return result;
+      }, {});
+
+      const attachments = Object.keys(winCount).map((player) => {
+        return {
+          text: `*${player}* - ${winCount[player]} wins`,
+          mrkdwn_in: ['text']
+        }
+      });
+
+      console.log(attachments);
+
+      return {
+        text: '*Statistics*',
+        attachments,
+      }
+    }
   },
 
   static: {

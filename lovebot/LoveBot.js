@@ -1,34 +1,30 @@
-const winston = require('winston');
-
 const Game = require('../lib/Game');
 const EventTransformer = require('./EventTransformer');
 const DumbBot = require('./bots/DumbBot');
 const responses = require('./responses');
-const SlackBot = require('./SlackBot');
 
 
 class LoveBot {
 
-  constructor(token) {
-    this.logger = new winston.Logger({
-      transports: [
-        new (winston.transports.Console)(),
-      ],
-    });
+  constructor(logger, slackBot, database) {
+    this.logger = logger;
+    this._slackBot = slackBot;
+    this._db = database;
 
     this._onGameEvent = this._onGameEvent.bind(this);
+    this._onPrivateMessage = this._onPrivateMessage.bind(this);
 
     this._game = null;
     this._bots = [];
     this._resetGame();
 
-    this._slackBot = new SlackBot(this.logger, token);
-    this._slackBot.on('private', this._onPrivateMessage.bind(this));
+    this._slackBot.on('private', this._onPrivateMessage);
 
     this._eventTransformer = new EventTransformer();
   }
 
   async start() {
+    this._db.initialize();
     await this._slackBot.connect();
   }
 
@@ -73,6 +69,7 @@ class LoveBot {
     });
 
     if (event.type === 'gameEnd') {
+      this._db.saveGame(event.winner, this._game.getRecord());
       this._resetGame();
     }
   }
@@ -105,6 +102,9 @@ class LoveBot {
         break;
       case 'addbot':
         this._onAddBot(username);
+        break;
+      case 'stats':
+        this._onStats(username);
         break;
       default:
         break;
@@ -231,6 +231,15 @@ class LoveBot {
 
     this.logger.info(`Game play command by ${username}`);
     this._game.playCardAsPlayer(username, c1, c2, c3);
+  }
+
+  _onStats(username) {
+    this._db.getWinners().then((winners) => {
+      const response = responses.dynamic.stats(winners);
+      this._sendMessageToUsername(
+        username, response.text, response.attachments
+      );
+    });
   }
 
   _generateBotName() {
