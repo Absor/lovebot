@@ -2,7 +2,7 @@ const winston = require('winston');
 
 const Game = require('../lib/Game');
 const EventTransformer = require('./EventTransformer');
-const DumbBot = require('./DumbBot');
+const DumbBot = require('./bots/DumbBot');
 const responses = require('./responses');
 const SlackBot = require('./SlackBot');
 
@@ -23,7 +23,7 @@ class LoveBot {
     this._resetGame();
 
     this._slackBot = new SlackBot(this.logger, token);
-    this._slackBot.on('message', this._onBotMessage.bind(this));
+    this._slackBot.on('private', this._onPrivateMessage.bind(this));
 
     this._eventTransformer = new EventTransformer();
   }
@@ -61,15 +61,11 @@ class LoveBot {
     newEvents.forEach((newEvent) => {
       newEvent.for.forEach((recipient) => {
         const botUser = this._bots.find(bot => bot.getName() === recipient);
-
         if (botUser) return;
-
-        const targetUser = this._users.find(user => user.name === recipient);
-        const targetIm = this._ims.find(im => im.user === targetUser.id);
 
         this.logger.info(`Game event send to ${recipient} started`, newEvent);
         this._sendMessageToUsername(
-          targetIm,
+          recipient,
           newEvent.text,
           newEvent.attachments
         );
@@ -199,7 +195,7 @@ class LoveBot {
       name = this._generateBotName();
     }
 
-    const bot = new DumbBot(name, this._game);
+    const bot = new DumbBot(this.logger, name, this._game);
 
     this._bots.push(bot);
     this._game.joinGameAsPlayer(bot.getName());

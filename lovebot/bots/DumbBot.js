@@ -1,39 +1,13 @@
-const GUARD_CHOICES = [
-  'Priest',
-  'Priest',
-  'Baron',
-  'Baron',
-  'Handmaid',
-  'Handmaid',
-  'Prince',
-  'Prince',
-  'King',
-  'Countess',
-  'Princess',
-];
+const Bot = require('../Bot');
 
 
-class DumbBot {
-
-  constructor(name, game) {
-    this._name = name;
-    this._game = game;
-    this._id = null;
-    this._status = null;
-    this._game.on('event', this._processEvent.bind(this));
-  }
-
-  _processEvent(event) {
-    const handler = this[event.type];
-
-    if (handler) {
-      handler(event);
-    }
-  }
+class DumbBot extends Bot {
 
   ['privateStatus'](event) {
+    if (!event.isCurrentPlayer) return;
+
     const recipient = event.for[0];
-    if (recipient !== this._name) return;
+    if (recipient !== this.getName()) return;
 
     const canPlayCards = event.cardsInHand.filter(c => c.canPlay);
 
@@ -72,13 +46,13 @@ class DumbBot {
     let cardChoice = null;
 
     if (cardTarget && cardName === 'Guard') {
-      cardChoice = GUARD_CHOICES[
-        Math.floor(Math.random() * GUARD_CHOICES.length)
+      cardChoice = this.GUARD_TARGET_CARDS[
+        Math.floor(Math.random() * this.GUARD_TARGET_CARDS.length)
       ];
     }
 
-    this._game.playCardAsPlayer(
-      this._name,
+    this.getGame().playCardAsPlayer(
+      this.getName(),
       cardName,
       cardTarget,
       cardChoice
