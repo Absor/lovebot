@@ -289,9 +289,6 @@ class EventTransformer {
   ['gameStatus'](event) {
     const attachments = [];
 
-    const verb = event.deckCardCount === 1 ? 'is' : 'are';
-    const noun = event.deckCardCount === 1 ? 'card' : 'cards';
-
     attachments.push({
       text: `It is round *${event.round}.*`,
       mrkdwn_in: ['text'],
@@ -366,6 +363,9 @@ class EventTransformer {
     }
 
     attachments.push(cardsOnTheTable);
+
+    const verb = event.deckCardCount === 1 ? 'is' : 'are';
+    const noun = event.deckCardCount === 1 ? 'card' : 'cards';
 
     attachments.push({
       text: `There ${verb} *${event.deckCardCount}* ${noun} in the deck.`,

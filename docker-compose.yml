@@ -1,8 +1,16 @@
-app:
-  build: .
-  restart: always
-  container_name: lovebot
-  environment:
-    - SLACK_TOKEN=insert-token-here
-  volumes:
-    - /app/node_modules
+version: '2'
+
+services:
+  lovebot:
+    container_name: lovebot
+    build:
+      context: ./
+      dockerfile: Dockerfile-dev
+    restart: always
+    volumes:
+      - ./:/opt/app
+      - /opt/app/node_modules
+      - /opt/app/db
+    environment:
+      SLACK_TOKEN: insert-token-here
+      DB_LOCATION: /opt/app/db/lovebot.db

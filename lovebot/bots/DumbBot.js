@@ -1,48 +1,15 @@
-const GUARD_CHOICES = [
-  'Priest',
-  'Priest',
-  'Baron',
-  'Baron',
-  'Handmaid',
-  'Handmaid',
-  'Prince',
-  'Prince',
-  'King',
-  'Countess',
-  'Princess',
-];
+const Bot = require('../Bot');
 
 
-class DumbBot {
+class DumbBot extends Bot {
 
-  constructor() {
-    this._id = null;
-    this._status = null;
+  ['privateStatus'](event) {
+    if (!event.isCurrentPlayer) return;
 
-    this.generateNewName();
-  }
+    const recipient = event.for[0];
+    if (recipient !== this.getName()) return;
 
-  generateNewName() {
-    this._id = '';
-
-    const possibleC = 'bcdfghjklmnpqrstvwxz';
-    const possibleV = 'aeiouy';
-
-    for (let i = 1; i <= 4; i += 1) {
-      let possible = possibleC;
-      if (i === 2 || i === 4) {
-        possible = possibleV;
-      }
-      this._id += possible.charAt(Math.floor(Math.random() * possible.length));
-    }
-  }
-
-  updateGameStatus(status) {
-    this._status = status;
-  }
-
-  getCardPlay(privateStatus) {
-    const canPlayCards = privateStatus.cardsInHand.filter(c => c.canPlay);
+    const canPlayCards = event.cardsInHand.filter(c => c.canPlay);
 
     // Prioritize non Princess cards
     let cardsToPlay = canPlayCards.filter(card => card.name !== 'Princess');
@@ -79,22 +46,18 @@ class DumbBot {
     let cardChoice = null;
 
     if (cardTarget && cardName === 'Guard') {
-      cardChoice = GUARD_CHOICES[
-        Math.floor(Math.random() * GUARD_CHOICES.length)
+      cardChoice = this.GUARD_TARGET_CARDS[
+        Math.floor(Math.random() * this.GUARD_TARGET_CARDS.length)
       ];
     }
 
-    return {
+    this.getGame().playCardAsPlayer(
+      this.getName(),
       cardName,
       cardTarget,
-      cardChoice,
-    };
+      cardChoice
+    );
   }
-
-  getName() {
-    return `bot_${this._id}`;
-  }
-
 }
 
 
