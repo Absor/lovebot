@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "eslint lib test slackbot && mocha",
-    "start": "babel-node index.js"
+    "test": "eslint lib test lovebot && mocha",
+    "start:dev": "nodemon --watch lib --watch lovebot lovebot/index.js",
+    "start": "babel-node lovebot/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -18,7 +19,8 @@
     "eslint-plugin-import": "^2.2.0",
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-react": "^6.7.1",
-    "mocha": "^3.1.2"
+    "mocha": "^3.1.2",
+    "nodemon": "^1.11.0"
   },
   "dependencies": {
     "form-data": "^2.1.2",
