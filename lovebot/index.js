@@ -6,7 +6,7 @@ const Database = require('./Database');
 
 
 const SLACK_TOKEN = process.env.SLACK_TOKEN;
-const DB_LOCATION = process.env.DB_LOCATION;
+const DB_LOCATION = process.env.DB_LOCATION || ':memory:';
 
 
 const logger = new winston.Logger({

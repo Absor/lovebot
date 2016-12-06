@@ -7,6 +7,8 @@ class Database {
     this.logger = logger;
     this._db = new sqlite3.Database(filename);
 
+    logger.info('Using database', filename);
+
     this._logQueries = this._logQueries.bind(this);
 
     this._db.on('trace', this._logQueries);
