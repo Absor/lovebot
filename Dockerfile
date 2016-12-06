@@ -1,10 +1,11 @@
 FROM mhart/alpine-node:latest
 
-WORKDIR /app
+ENV HOME /opt/app
 
-COPY ./package.json /app/package.json
-RUN npm install
+WORKDIR ${HOME}
 
-COPY . /app
+COPY ./build ${HOME}
+RUN npm install --production
+RUN rm package.json
 
-CMD ["npm", "run", "start"]
+CMD ["node", "lovebot/index.js"]

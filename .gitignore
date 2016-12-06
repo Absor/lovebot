@@ -3,3 +3,4 @@ node_modules
 .ash_history
 .v8*
 .babel.json
+build

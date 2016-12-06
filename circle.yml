@@ -6,7 +6,7 @@ machine:
 
 test:
   post:
-    - docker build --rm=false -t absor/lovebot .
+    - npm run build
 
 deployment:
   hub:

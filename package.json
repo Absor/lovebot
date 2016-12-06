@@ -6,7 +6,11 @@
   "scripts": {
     "test": "eslint lib test lovebot && mocha",
     "start:dev": "nodemon --watch lib --watch lovebot lovebot/index.js",
-    "start": "babel-node lovebot/index.js"
+    "start": "babel-node lovebot/index.js",
+    "clean": "rm -rf build",
+    "build": "npm run clean && npm run build:js && npm run build:docker",
+    "build:js": "babel lovebot -d build/lovebot && babel lib -d build/lib && cp package.json build/",
+    "build:docker": "docker build --rm=false -t absor/lovebot ."
   },
   "author": "",
   "license": "ISC",
