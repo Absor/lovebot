@@ -34,7 +34,6 @@ class Database {
   }
 
   saveGame(winner, record) {
-    const logger = this.logger;
     const db = this._db;
     this._db.run(
       `
@@ -44,7 +43,7 @@ class Database {
           (?, datetime())
       `,
       winner,
-      function (err) {
+      function addRelatedRecord(err) {
         if (err) throw err;
         db.run(
           `
@@ -75,7 +74,7 @@ class Database {
 
   _logQueries(query, timeMs) {
     const data = {
-      query: query.replace( /\s\s+/g, ' '),
+      query: query.replace(/\s\s+/g, ' '),
     };
 
     let when = 'start';

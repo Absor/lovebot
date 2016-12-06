@@ -27,26 +27,22 @@ module.exports = {
         }
 
         if (result[key] === undefined) {
-          result[key] = 0;
+          result[key] = 0; // eslint-disable-line no-param-reassign
         }
-        result[key] += 1;
+        result[key] += 1; // eslint-disable-line no-param-reassign
         return result;
       }, {});
 
-      const attachments = Object.keys(winCount).map((player) => {
-        return {
-          text: `*${player}* - ${winCount[player]} wins`,
-          mrkdwn_in: ['text']
-        }
-      });
-
-      console.log(attachments);
+      const attachments = Object.keys(winCount).map(player => ({
+        text: `*${player}* - ${winCount[player]} wins`,
+        mrkdwn_in: ['text'],
+      }));
 
       return {
         text: '*Statistics*',
         attachments,
-      }
-    }
+      };
+    },
   },
 
   static: {
