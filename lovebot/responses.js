@@ -83,7 +83,7 @@ module.exports = {
       ].join(' '),
     },
 
-    comands: {
+    commands: {
       text: [
         '*Commands*',
         '*cards* to show a summary of cards.',
