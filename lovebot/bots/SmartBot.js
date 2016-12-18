@@ -143,7 +143,7 @@ class SmartBot extends Bot {
     }
 
     // Prioritize other targets
-    if (validTargets.length === 1) {
+    if (validTargets.length !== 1) {
       validTargets = validTargets.filter(target => target !== this.getName());
     }
 
