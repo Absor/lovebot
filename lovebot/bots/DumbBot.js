@@ -3,6 +3,10 @@ const Bot = require('../Bot');
 
 class DumbBot extends Bot {
 
+  static getType() {
+    return 'dumb';
+  }
+
   ['privateStatus'](event) {
     if (!event.isCurrentPlayer) return;
 

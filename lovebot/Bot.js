@@ -38,8 +38,23 @@ class Bot {
       'Princess',
     ];
 
+    this.CARD_VALUES = {
+      'Guard': 1,
+      'Priest': 2,
+      'Baron': 3,
+      'Handmaid': 4,
+      'Prince': 5,
+      'King': 6,
+      'Countess': 7,
+      'Princess': 8,
+    };
+
     this._processEvent = this._processEvent.bind(this);
     this._game.on('event', this._processEvent);
+  }
+
+  static getType() {
+    throw Error('Bot getType not implemented.');
   }
 
   getName() {
@@ -51,6 +66,9 @@ class Bot {
   }
 
   _processEvent(event) {
+    const isNotForBot = event.for.indexOf(this.getName()) === -1;
+    if (isNotForBot) return;
+
     const handler = this[event.type];
 
     if (handler) {
