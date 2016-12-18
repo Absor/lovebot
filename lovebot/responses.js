@@ -43,6 +43,32 @@ module.exports = {
         attachments,
       };
     },
+
+    noBotTypeAddBot(allBotTypes) {
+      const types = allBotTypes.slice(0).map(t => `*${t}*`);
+      const lastBotType = types.pop();
+      return {
+        text: [
+          'You have to specify a bot type.',
+          'Possible bot types are',
+          types.join(' '),
+          `and ${lastBotType}.`,
+        ].join(' '),
+      };
+    },
+
+    badBotTypeAddBot(chosenBotType, allBotTypes) {
+      const types = allBotTypes.slice(0).map(t => `*${t}*`);
+      const lastBotType = types.pop();
+      return {
+        text: [
+          `*${chosenBotType}* is not a valid bot type.`,
+          'Valid bot types are',
+          types.join(' '),
+          `and ${lastBotType}.`,
+        ].join(' '),
+      };
+    },
   },
 
   static: {
@@ -91,7 +117,7 @@ module.exports = {
         '*start* to start a game you have joined.',
         '*play <cardname> <target player name> <card choice>* ' +
           'to play a card when it is your turn.',
-        '*addbot* to add a bot player to a game you have joined.',
+        '*addbot <bot type>* to add a bot player to a game you have joined.',
       ].join('\n'),
     },
 

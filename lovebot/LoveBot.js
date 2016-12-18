@@ -1,7 +1,15 @@
 const Game = require('../lib/Game');
 const EventTransformer = require('./EventTransformer');
-const DumbBot = require('./bots/DumbBot');
 const responses = require('./responses');
+
+const DumbBot = require('./bots/DumbBot');
+const SmartBot = require('./bots/SmartBot');
+
+
+const BOT_TYPES = {
+  [DumbBot.getType()]: DumbBot,
+  [SmartBot.getType()]: SmartBot,
+};
 
 
 class LoveBot {
@@ -101,7 +109,7 @@ class LoveBot {
         this._onPlay(username, command[1], command[2], command[3]);
         break;
       case 'addbot':
-        this._onAddBot(username);
+        this._onAddBot(username, command[1]);
         break;
       case 'stats':
         this._onStats(username);
@@ -147,7 +155,9 @@ class LoveBot {
     }
 
     if (this._game.isFull()) {
-      this._sendMessageToUsername(username, responses.static.gameFullJoin);
+      this._sendMessageToUsername(
+        username, responses.static.gameFullJoin.text
+      );
       this.logger.error(
         `Game join command by ${username} failed because the game is full.`
       );
@@ -158,10 +168,10 @@ class LoveBot {
     this._game.joinGameAsPlayer(username);
   }
 
-  _onAddBot(username) {
+  _onAddBot(username, botType) {
     if (!this._game.hasPlayerWithName(username)) {
       this._sendMessageToUsername(
-        username, responses.static.notInGameAddBot
+        username, responses.static.notInGameAddBot.text
       );
       this.logger.error(
         `Add bot command by ${username} failed ` +
@@ -172,7 +182,7 @@ class LoveBot {
 
     if (this._game.hasStarted()) {
       this._sendMessageToUsername(
-        username, responses.static.alreadyStartedAddBot
+        username, responses.static.alreadyStartedAddBot.text
       );
       this.logger.error(
         `Bot add command by ${username} failed because the game has started.`
@@ -182,10 +192,37 @@ class LoveBot {
 
     if (this._game.isFull()) {
       this._sendMessageToUsername(
-        username, responses.static.gameFullAddBot
+        username, responses.static.gameFullAddBot.text
       );
       this.logger.error(
         `Bot add command by ${username} failed because the game is full.`
+      );
+      return;
+    }
+
+    if (!botType) {
+      this._sendMessageToUsername(
+        username,
+        responses.dynamic.noBotTypeAddBot(Object.keys(BOT_TYPES)).text
+      );
+      this.logger.error(
+        `Bot add command by ${username} failed because bot type was not given.`
+      );
+      return;
+    }
+
+    const Bot = BOT_TYPES[botType];
+
+    if (!Bot) {
+      this._sendMessageToUsername(
+        username,
+        responses.dynamic.badBotTypeAddBot(
+          botType, Object.keys(BOT_TYPES)
+        ).text
+      );
+      this.logger.error(
+        `Bot add command by ${username} failed`,
+        `because there is no bot of type ${botType}.`
       );
       return;
     }
@@ -195,7 +232,7 @@ class LoveBot {
       name = this._generateBotName();
     }
 
-    const bot = new DumbBot(this.logger, name, this._game);
+    const bot = new Bot(this.logger, name, this._game);
 
     this._bots.push(bot);
     this._game.joinGameAsPlayer(bot.getName());
@@ -205,7 +242,7 @@ class LoveBot {
     this.logger.info(`Game start command attempt by ${username}`);
     if (!this._game.hasPlayerWithName(username)) {
       this._sendMessageToUsername(
-        username, responses.static.notInGameStart
+        username, responses.static.notInGameStart.text
       );
       this.logger.error(
         `Game start command failed because ${username} is not in the game`
@@ -221,7 +258,7 @@ class LoveBot {
     this.logger.info(`Game play command attempt by ${username}`);
     if (!this._game.hasPlayerWithName(username)) {
       this._sendMessageToUsername(
-        username, responses.static.notInGamePlay
+        username, responses.static.notInGamePlay.text
       );
       this.logger.error(
         `Game play command failed because ${username} is not in the game`
