@@ -8,6 +8,7 @@ class SmartBot extends Bot {
 
     this._cards = {};
     this._gameStatus = null;
+    this._handCardKnown = null;
   }
 
   static getType() {
@@ -38,6 +39,17 @@ class SmartBot extends Bot {
     );
   }
 
+  ['cardShow'](event) {
+    if (event.player !== this.getName()) return;
+
+    const knownCard = this._cards[this.getName()].handCards[0];
+    this.logger.info(
+      `${this.getName()} knows that ${event.target}`,
+      `knows its hand card ${knownCard}`
+    );
+    this._handCardKnown = knownCard;
+  }
+
   ['cardPlay'](event) {
     const { player, card } = event;
     this._addPlayerCardBase(player);
@@ -56,6 +68,7 @@ class SmartBot extends Bot {
   }
 
   ['privateStatus'](event) {
+    this._cards[this.getName()].handCards = event.cardsInHand.map(c => c.name);
     // Filter irrelevant input
     if (!event.isCurrentPlayer) return;
 
@@ -84,6 +97,24 @@ class SmartBot extends Bot {
   _getPreferredCard(cardsInHand) {
     const canPlayCards = cardsInHand.slice(0).filter(c => c.canPlay);
 
+    // If someone knows our card and we can play it, play it away
+    if (this._handCardKnown) {
+      const canPlayKnownCard = canPlayCards.find(
+        c => c.name === this._handCardKnown
+      );
+
+      if (canPlayKnownCard) {
+        this.logger.info(
+          `${this.getName()} knows that someone else knows its hand`,
+          'card and chooses to play the known card'
+        );
+
+        this._handCardKnown = null;
+        return canPlayKnownCard;
+      }
+    }
+
+    // Otherwise play the smalles value card
     canPlayCards.sort((c1, c2) => (
       this.CARD_VALUES[c1.name] - this.CARD_VALUES[c2.name]
     ));
@@ -99,7 +130,7 @@ class SmartBot extends Bot {
         .filter(playerName => validTargets.indexOf(playerName) !== -1)
         .find((playerName) => {
           const playerCards = this._cards[playerName];
-          return playerCards.length > 0;
+          return playerCards.length > 0 && playerCards[0] !== 'Guard';
         });
 
       if (target) {
@@ -128,9 +159,13 @@ class SmartBot extends Bot {
   _getPreferredChoice(cardToPlay, cardTarget) {
     if (cardTarget && cardToPlay.name !== 'Guard') return null;
 
-    // If we know the handcard, return that
+    // If we know the handcard, return that (if it is not Guard)
     const targetCards = this._cards[cardTarget];
-    if (targetCards && targetCards.handCards.length > 0) {
+    if (
+        targetCards &&
+        targetCards.handCards.length > 0 &&
+        targetCards.handCards[0] !== 'Guard'
+      ) {
       return targetCards.handCards[0];
     }
 
