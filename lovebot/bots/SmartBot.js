@@ -114,7 +114,7 @@ class SmartBot extends Bot {
       }
     }
 
-    // Otherwise play the smalles value card
+    // Otherwise play the smallest value card
     canPlayCards.sort((c1, c2) => (
       this.CARD_VALUES[c1.name] - this.CARD_VALUES[c2.name]
     ));
