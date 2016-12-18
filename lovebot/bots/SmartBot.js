@@ -14,7 +14,7 @@ class SmartBot extends Bot {
     return 'smart';
   }
 
-  ['roundStart'](event) {
+  ['roundStart']() {
     this._cards = {};
     this._gameStatus = null;
   }
@@ -39,19 +39,18 @@ class SmartBot extends Bot {
   }
 
   ['cardPlay'](event) {
-    this._addPlayerCardBase(event.player);
+    const { player, card } = event;
+    this._addPlayerCardBase(player);
 
-    const { player, card, target, cardChoice } = event;
-
-    const index = this._cards[event.player].handCards.indexOf(event.card);
+    const index = this._cards[player].handCards.indexOf(card);
 
     if (index > -1) {
-      const handCards = this._cards[event.player].handCards;
-      this._cards[event.player].handCards = handCards.splice(index, 1);
+      const handCards = this._cards[player].handCards;
+      this._cards[player].handCards = handCards.splice(index, 1);
 
       this.logger.info(
-        `${this.getName()} knows that ${event.player}`,
-        `does not have ${event.card} anymore`
+        `${this.getName()} knows that ${player}`,
+        `does not have ${card} anymore`
       );
     }
   }
@@ -62,8 +61,8 @@ class SmartBot extends Bot {
 
     const cardToPlay = this._getPreferredCard(event.cardsInHand);
     const cardName = cardToPlay.name;
-    let cardTarget = this._getPreferredTarget(cardToPlay);
-    let cardChoice = this._getPreferredChoice(cardToPlay, cardTarget);
+    const cardTarget = this._getPreferredTarget(cardToPlay);
+    const cardChoice = this._getPreferredChoice(cardToPlay, cardTarget);
 
     this.getGame().playCardAsPlayer(
       this.getName(),
@@ -106,8 +105,7 @@ class SmartBot extends Bot {
       if (target) {
         this.logger.info(
           `${this.getName()} knows the hand card of ${target}`,
-          `and targets ${target} with a Guard`,
-          remainingCards
+          `and targets ${target} with a Guard`
         );
         return target;
       }
@@ -118,10 +116,8 @@ class SmartBot extends Bot {
       validTargets = validTargets.filter(target => target !== this.getName());
     }
 
-    let cardTarget = null;
-
     if (cardToPlay.validTargetPlayers.length > 0) {
-      return  validTargets[
+      return validTargets[
         Math.floor(Math.random() * validTargets.length)
       ];
     }

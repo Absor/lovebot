@@ -1,17 +1,15 @@
 const Game = require('../lib/Game');
 const EventTransformer = require('./EventTransformer');
 const responses = require('./responses');
-const fs = require('fs');
-const path = require('path');
+
+const DumbBot = require('./bots/DumbBot');
+const SmartBot = require('./bots/SmartBot');
 
 
-const BOT_TYPES = {};
-
-const files = fs.readdirSync(path.join(__dirname, 'bots'));
-files.forEach((file) => {
-  const bot = require(path.join(__dirname, 'bots', file));
-  BOT_TYPES[bot.getType()] = bot;
-});
+const BOT_TYPES = {
+  [DumbBot.getType()]: DumbBot,
+  [SmartBot.getType()]: SmartBot,
+};
 
 
 class LoveBot {

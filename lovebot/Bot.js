@@ -38,6 +38,8 @@ class Bot {
       'Princess',
     ];
 
+    /* eslint-disable quote-props */
+    // Quoted keys are clearer in this case
     this.CARD_VALUES = {
       'Guard': 1,
       'Priest': 2,
@@ -48,6 +50,7 @@ class Bot {
       'Countess': 7,
       'Princess': 8,
     };
+    /* eslint-enable quote-props */
 
     this._processEvent = this._processEvent.bind(this);
     this._game.on('event', this._processEvent);
